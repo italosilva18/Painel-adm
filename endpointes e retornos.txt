@@ -1,0 +1,354 @@
+﻿Documentação Completa da API (Endpoints e Retornos)
+Este documento detalha todos os endpoints, corpos de requisição (request body) e exemplos de retorno (response body) com base na collection do Postman api.painelmargem.com.br.postman_collection.json.
+URL Base: https://api.painelmargem.com.br/admin
+1. Autenticação (/auth)
+POST /login
+Autentica o usuário administrador.
+Request Body:
+{
+   "email": "suporte@minhamargem.com.br", 
+   "password": "123456"
+}
+
+Exemplo de Retorno (Response):
+{
+   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQxMzAxNDY2LCJleHAiOjE3NDE5MDYyNjZ9.G1p9XJp4v8b-8-8-8-8-8",
+   "user": {
+       "id": 1,
+       "name": "Suporte Margem",
+       "email": "suporte@minhamargem.com.br"
+   }
+}
+
+2. Dashboard (/dashboard)
+GET /dashboard/stats
+Busca estatísticas simples para o painel (endpoint não mapeado no frontend atual).
+Request Body: (Nenhum)
+Exemplo de Retorno (Response):
+{
+   "stores": 867,
+   "date": "27/02/2025 00:11"
+}
+
+3. Lojas (/store)
+GET /store?cnpj={cnpj}
+Busca lojas. Se o parâmetro cnpj for fornecido, filtra por ele.
+Exemplo de Request: GET /store?cnpj=51137493000147
+Exemplo de Retorno (Response):
+{
+   "stores": [
+       {
+           "id": 4,
+           "name": "italo ltda",
+           "fantasy_name": "ITALO LTDA",
+           "cnpj": "51137493000147",
+           "serial": "FEYLWYMMRW",
+           "active": true
+       }
+   ]
+}
+
+POST /store
+Cadastra uma nova loja.
+Request Body:
+{
+   "name": "Razão Social Teste",
+   "fantasy_name": "Nome Fantasia Teste",
+   "cnpj": "12345678901234",
+   "phone": "123456789",
+   "email": "teste@teste.com",
+   "segment": "SUPERMERCADO",
+   "working_hours": "Seg a Sex, 08h-18h",
+   "size": "01 a 04-Pequeno Porte",
+   "partner": "kw",
+   "partner_code": "123",
+   "address_state": "Bahia",
+   "address_city": "Salvador",
+   "address_street": "Rua Teste",
+   "address_number": "123",
+   "address_district": "Bairro Teste",
+   "address_city_code": "2927408",
+   "address_state_code": "29",
+   "active": true,
+   "service_offerta": true,
+   "service_oppinar": false,
+   "service_prazzo": true,
+   "service_scanner": false,
+   "status": "inativo"
+}
+
+Exemplo de Retorno (Response):
+{
+   "id": 10,
+   "name": "Razão Social Teste",
+   "fantasy_name": "Nome Fantasia Teste",
+   "cnpj": "12345678901234",
+   "phone": "123456789",
+   "email": "teste@teste.com",
+   "segment": "SUPERMERCADO",
+   "working_hours": "Seg a Sex, 08h-18h",
+   "size": "01 a 04-Pequeno Porte",
+   "partner": "kw",
+   "partner_code": "123",
+   "serial": "QWGEMIVXXV",
+   "address_state": "Bahia",
+   "address_city": "Salvador",
+   "address_street": "Rua Teste",
+   "address_number": "123",
+   "address_district": "Bairro Teste",
+   "address_city_code": "2927408",
+   "address_state_code": "29",
+   "active": true,
+   "service_offerta": true,
+   "service_oppinar": false,
+   "service_prazzo": true,
+   "service_scanner": false,
+   "status": "inativo",
+   "updated_at": "2025-03-12T03:11:08.000Z",
+   "created_at": "2025-03-12T03:11:08.000Z"
+}
+
+PUT /store/{id}
+Atualiza uma loja existente.
+Exemplo de Request: PUT /store/4
+Request Body:
+{
+   "name": "Razão Social Teste (Editado)"
+}
+
+Exemplo de Retorno (Response):
+{
+   "id": 4,
+   "name": "Razão Social Teste (Editado)",
+   "fantasy_name": "ITALO LTDA",
+   "cnpj": "51137493000147",
+   "phone": null,
+   "email": null,
+   "segment": null,
+   "working_hours": null,
+   "size": null,
+   "partner": null,
+   "partner_code": null,
+   "serial": "FEYLWYMMRW",
+   "address_state": null,
+   "address_city": null,
+   "address_street": null,
+   "address_number": null,
+   "address_district": null,
+   "address_city_code": null,
+   "address_state_code": null,
+   "active": true,
+   "service_offerta": false,
+   "service_oppinar": false,
+   "service_prazzo": false,
+   "service_scanner": false,
+   "status": "inativo",
+   "created_at": "2025-03-11T02:04:12.000Z",
+   "updated_at": "2025-03-12T03:10:47.000Z"
+}
+
+DELETE /store/{id}
+Exclui uma loja.
+Exemplo de Request: DELETE /store/9
+Exemplo de Retorno (Response):
+{
+   "message": "Store deleted successfully"
+}
+
+4. Usuários Mobile (/mobile)
+GET /mobile?email={email}
+Busca usuários mobile. Se o parâmetro email for fornecido, filtra por ele.
+Exemplo de Request: GET /mobile?email=appmargem
+Exemplo de Retorno (Response):
+{
+   "users": [
+       {
+           "id": 1,
+           "name": "APP MARGEM - EQUIPE",
+           "email": "appmargem@minhamargem.com.br",
+           "type": "Suporte",
+           "phone": "75982239640",
+           "active": true
+       }
+   ]
+}
+
+GET /mobile/{id}
+Busca um usuário mobile específico pelo ID, incluindo suas lojas associadas.
+Exemplo de Request: GET /mobile/1
+Exemplo de Retorno (Response):
+{
+   "user": {
+       "id": 1,
+       "name": "APP MARGEM - EQUIPE",
+       "email": "appmargem@minhamargem.com.br",
+       "phone": "75982239640",
+       "type": "Suporte",
+       "partner": "mpontom",
+       "active": true,
+       "stores": [
+           {
+               "id": 1,
+               "fantasy_name": "NOVO MIX - BURAQUINHO",
+               "cnpj": "24626330000155",
+               "serial": "ABC1234"
+           },
+           {
+               "id": 2,
+               "fantasy_name": "NOVO MIX - SUSSUARANA",
+               "cnpj": "05476186000173",
+               "serial": "DEF5678"
+           }
+       ]
+   }
+}
+
+POST /mobile
+Cadastra um novo usuário mobile.
+Request Body:
+{
+   "name": "Teste Mobile",
+   "email": "teste@mobile.com",
+   "phone": "123456789",
+   "type": "Admin",
+   "partner": "kw",
+   "active": true
+}
+
+Exemplo de Retorno (Response):
+{
+   "id": 2,
+   "name": "Teste Mobile",
+   "email": "teste@mobile.com",
+   "phone": "123456789",
+   "type": "Admin",
+   "partner": "kw",
+   "active": true,
+   "updated_at": "2025-03-12T03:09:56.000Z",
+   "created_at": "2025-03-12T03:09:56.000Z"
+}
+
+PUT /mobile/{id}
+Atualiza um usuário mobile existente.
+Exemplo de Request: PUT /mobile/1
+Request Body:
+{
+   "name": "APP MARGEM - EQUIPE (Editado)"
+}
+
+Exemplo de Retorno (Response):
+{
+   "id": 1,
+   "name": "APP MARGEM - EQUIPE (Editado)",
+   "email": "appmargem@minhamargem.com.br",
+   "phone": "75982239640",
+   "type": "Suporte",
+   "partner": "mpontom",
+   "active": true,
+   "created_at": "2025-03-05T01:54:19.000Z",
+   "updated_at": "2025-03-12T03:09:37.000Z"
+}
+
+DELETE /mobile/{id}
+Exclui um usuário mobile.
+Exemplo de Request: DELETE /mobile/2
+Exemplo de Retorno (Response):
+{
+   "message": "User deleted successfully"
+}
+
+POST /mobile/{id}/store
+Associa uma loja (pelo store_id) a um usuário mobile (pelo {id}).
+Exemplo de Request: POST /mobile/1/store
+Request Body:
+{
+   "store_id": 4
+}
+
+Exemplo de Retorno (Response):
+{
+   "message": "Store added to user successfully"
+}
+
+DELETE /mobile/{userId}/store/{storeId}
+Remove a associação de uma loja de um usuário mobile.
+Exemplo de Request: DELETE /mobile/1/store/4
+Exemplo de Retorno (Response):
+{
+   "message": "Store removed from user successfully"
+}
+
+5. Usuários Suporte (/support)
+GET /support?email={email}
+Busca usuários de suporte. Se o parâmetro email for fornecido, filtra por ele.
+Exemplo de Request: GET /support?email=appmargem
+Exemplo de Retorno (Response):
+{
+   "users": [
+       {
+           "id": 1,
+           "name": "MONITOR MPONTOM",
+           "email": "appmargem@minhamargem.com.br",
+           "partner": "MPONTOM"
+       }
+   ]
+}
+
+POST /support
+Cadastra um novo usuário de suporte.
+Request Body:
+{
+   "name": "Teste Suporte",
+   "email": "suporte@teste.com",
+   "partner": "KW"
+}
+
+Exemplo de Retorno (Response):
+{
+   "id": 2,
+   "name": "Teste Suporte",
+   "email": "suporte@teste.com",
+   "partner": "KW"
+}
+
+PUT /support/{id}
+Atualiza um usuário de suporte existente.
+Exemplo de Request: PUT /support/1
+Request Body:
+{
+   "name": "MONITOR MPONTOM (Editado)"
+}
+
+Exemplo de Retorno (Response):
+{
+   "id": 1,
+   "name": "MONITOR MPONTOM (Editado)",
+   "email": "appmargem@minhamargem.com.br",
+   "partner": "MPONTOM"
+}
+
+DELETE /support/{id}
+Exclui um usuário de suporte.
+Exemplo de Request: DELETE /support/2
+Exemplo de Retorno (Response):
+{
+   "message": "Support user deleted successfully"
+}
+
+6. Parceiros (/partner)
+GET /partner
+Lista todos os parceiros disponíveis.
+Request Body: (Nenhum)
+Exemplo de Retorno (Response):
+{
+   "partners": [
+       {
+           "id": "kw",
+           "name": "KW"
+       },
+       {
+           "id": "mpontom",
+           "name": "MPONTOM"
+       }
+   ]
+}

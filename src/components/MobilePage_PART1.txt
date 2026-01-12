@@ -1,0 +1,31 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  X,
+  Smartphone,
+  Store,
+  UserPlus,
+  Download,
+  Copy
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import {
+  mobileService,
+  UserStore,
+  getMobileUserWithStoresByPhone
+} from '../api/mobileService';
+import { MobileUser } from '../api/types';
+import { refDataService, Partner } from '../api/referenceData';
+import { applyPhoneMask } from '../utils/formatters';
+import { exportToCSV, mobileUserExportColumns } from '../utils/exportUtils';
+
+const USER_TYPES = [
+  { value: 'Admin', label: 'Admin' },
+  { value: 'Suporte', label: 'Suporte' },
+  { value: 'Operador', label: 'Operador' },
+  { value: 'Gerente', label: 'Gerente' }
+];

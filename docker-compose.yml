@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Development container with hot-reload
+  margem-web-admin-v5-dev:
+    container_name: margem-web-admin-v5-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"  # Vite dev server port
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - ./.env:/app/.env
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=/admin
+      - VITE_JWT_SECRET=#$$100&&CLIENTES%%PAGANTES#
+      - DOCKER_ENV=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - margem-network
+    command: npm run dev -- --host
+
+  # Production container
+  margem-web-admin-v5-prod:
+    container_name: margem-web-admin-v5-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://margem-api-admin:5001
+    networks:
+      - margem-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Include the backend API for complete stack
+  margem-api-admin:
+    image: gisctech/margem-api-admin:latest
+    container_name: margem-api-admin
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGODB_URI=mongodb://admin:MongoDB%402025%21Secure@201.23.72.170:27017/margem?authSource=admin&tls=true&tlsAllowInvalidCertificates=true&directConnection=true
+      - MONGODB_DATABASE=margem
+      - JWT_SECRET=#$$100&&CLIENTES%%PAGANTES#
+      - ADMIN_SECRET=#$$100&&CLIENTES%%PAGANTES#
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=cadastro@minhamargem.com.br
+      - SMTP_PASSWORD=rtic ygmp yuvw kvzg
+      - TWILIO_ACCOUNT_SID=your_twilio_sid
+      - TWILIO_AUTH_TOKEN=your_twilio_token
+      - TWILIO_FROM_PHONE=+1234567890
+    networks:
+      - margem-network
+    restart: unless-stopped
+
+networks:
+  margem-network:
+    driver: bridge
+    name: margem-network
