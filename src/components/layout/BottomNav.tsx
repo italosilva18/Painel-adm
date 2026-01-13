@@ -21,7 +21,7 @@ const mainNavItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/lojas", label: "Lojas", icon: Building2 },
   { path: "/mobile", label: "Mobile", icon: Smartphone },
-  { path: "/relatorios", label: "Relatórios", icon: FileBarChart },
+  { path: "/relatórios", label: "Relatórios", icon: FileBarChart },
 ];
 
 export function BottomNav() {

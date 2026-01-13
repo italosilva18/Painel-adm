@@ -1,5 +1,5 @@
 /**
- * Modulos Page Component
+ * Módulos Page Component
  * Displays available system modules and their status
  */
 
@@ -38,7 +38,7 @@ const modules: Module[] = [
   {
     id: 'margem',
     name: 'MARGEM',
-    description: 'Sistema principal de gestao de margens de lucro. Processa relatorios e fornece analises de vendas em tempo real.',
+    description: 'Sistema principal de gestao de margens de lucro. Processa relatórios e fornece analises de vendas em tempo real.',
     icon: BarChart3,
     color: 'text-cyan-600',
     bgColor: 'bg-cyan-100',
@@ -46,7 +46,7 @@ const modules: Module[] = [
     features: [
       'Dashboard de vendas',
       'Analise de margens',
-      'Relatorios por periodo',
+      'Relatórios por periodo',
       'Comparativo de lojas'
     ]
   },
@@ -91,7 +91,7 @@ const modules: Module[] = [
     features: [
       'Alertas de vencimento',
       'Gestao de lotes',
-      'Relatorios de perdas',
+      'Relatórios de perdas',
       'Sugestoes de promocao'
     ]
   },
@@ -112,7 +112,7 @@ const modules: Module[] = [
   }
 ];
 
-export const ModulosPage: React.FC = () => {
+export const MódulosPage: React.FC = () => {
   const [modulesData, setModulesData] = useState<ModulesData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -127,7 +127,6 @@ export const ModulosPage: React.FC = () => {
       const data = await modulesService.getModulesStats();
       setModulesData(data);
     } catch (error) {
-      console.error('Error loading modules:', error);
       toast.error('Erro ao carregar dados dos módulos');
     } finally {
       setLoading(false);
@@ -235,7 +234,6 @@ export const ModulosPage: React.FC = () => {
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                     onClick={() => {
                       // Future: navigate to module settings
-                      console.log(`Configure ${module.name}`);
                     }}
                   >
                     <ExternalLink className="w-4 h-4" />
@@ -277,4 +275,4 @@ export const ModulosPage: React.FC = () => {
   );
 };
 
-export default ModulosPage;
+export default MódulosPage;

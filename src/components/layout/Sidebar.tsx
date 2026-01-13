@@ -26,9 +26,9 @@ const navItems = [
   { path: "/lojas", label: "Lojas", icon: Building2, color: "lojas" },
   { path: "/mobile", label: "Mobile", icon: Smartphone, color: "mobile" },
   { path: "/suporte", label: "Suporte", icon: HeadphonesIcon, color: "suporte" },
-  { path: "/automacoes", label: "Automações", icon: Settings, color: "automacoes" },
-  { path: "/modulos", label: "Módulos", icon: Boxes, color: "modulos" },
-  { path: "/relatorios", label: "Relatórios", icon: FileBarChart, color: "relatorios" },
+  { path: "/automações", label: "Automações", icon: Settings, color: "automações" },
+  { path: "/módulos", label: "Módulos", icon: Boxes, color: "módulos" },
+  { path: "/relatórios", label: "Relatórios", icon: FileBarChart, color: "relatórios" },
 ];
 
 interface SidebarProps {

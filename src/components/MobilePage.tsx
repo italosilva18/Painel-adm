@@ -62,7 +62,6 @@ const MobilePage: React.FC = () => {
       const partnersData = await refDataService.getPartners();
       setPartners(partnersData);
     } catch (error) {
-      console.error('Erro ao carregar dados de referência:', error);
       toast.error('Erro ao carregar parceiros');
     } finally {
       setLoadingRefData(false);
@@ -128,7 +127,6 @@ const MobilePage: React.FC = () => {
       setStoresPage(1);
       toast.success('Usuário encontrado');
     } catch (error) {
-      console.error('Erro na busca:', error);
       toast.error('Erro ao buscar usuário');
       setCurrentUser(null);
       setUserStores([]);
@@ -284,7 +282,6 @@ const MobilePage: React.FC = () => {
       setShowForm(false);
       setEditingUser(null);
     } catch (error: any) {
-      console.error('Erro ao salvar usuário:', error);
       toast.error(error.message || 'Erro ao salvar usuário');
     } finally {
       setLoading(false);
@@ -306,7 +303,6 @@ const MobilePage: React.FC = () => {
       setUserStores([]);
       setSearchTerm('');
     } catch (error: any) {
-      console.error('Erro ao excluir usuário:', error);
       toast.error(error.message || 'Erro ao excluir usuário');
     } finally {
       setLoading(false);
@@ -333,7 +329,6 @@ const MobilePage: React.FC = () => {
       setShowAddStoreModal(false);
       setStoreCnpjSearch('');
     } catch (error: any) {
-      console.error('Erro ao adicionar loja:', error);
       toast.error(error.message || 'Erro ao vincular loja');
     } finally {
       setAddingStore(false);
@@ -353,7 +348,6 @@ const MobilePage: React.FC = () => {
       toast.success('Loja desvinculada com sucesso!');
       setUserStores(prev => prev.filter(s => s.cnpj !== store.cnpj));
     } catch (error: any) {
-      console.error('Erro ao remover loja:', error);
       toast.error(error.message || 'Erro ao desvincular loja');
     } finally {
       setLoading(false);

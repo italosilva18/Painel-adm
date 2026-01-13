@@ -4,8 +4,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import * as storesService from '@/api/services/stores';
-import { Store, CreateStoreRequest } from '@/api/types';
+import * as storeService from '@/api/services/storeService';
+import { Store } from '@/api/types';
 
 export interface StoresState {
   stores: Store[];
@@ -14,7 +14,7 @@ export interface StoresState {
   error: string | null;
 }
 
-export function useStores(_initialPartner?: string) {
+export function useStores() {
   const [state, setState] = useState<StoresState>({
     stores: [],
     currentStore: null,
@@ -23,46 +23,22 @@ export function useStores(_initialPartner?: string) {
   });
 
   /**
-   * Load stores for a partner
+   * Search store by CNPJ
    */
-  const loadStores = useCallback(async (partner: string) => {
+  const searchByCnpj = useCallback(async (cnpj: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const stores = await storesService.getStoresByPartner(partner);
+      const stores = await storeService.getStores(cnpj);
       setState(prev => ({
         ...prev,
         stores,
+        currentStore: stores.length > 0 ? stores[0] : null,
         isLoading: false,
       }));
       return stores;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar lojas';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, []);
-
-  /**
-   * Load single store by CNPJ
-   */
-  const loadStore = useCallback(async (cnpj: string) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const store = await storesService.getStore(cnpj);
-      setState(prev => ({
-        ...prev,
-        currentStore: store,
-        isLoading: false,
-      }));
-      return store;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar loja';
+      const message = error instanceof Error ? error.message : 'Erro ao buscar loja';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -75,11 +51,11 @@ export function useStores(_initialPartner?: string) {
   /**
    * Create new store
    */
-  const createStore = useCallback(async (store: CreateStoreRequest) => {
+  const createStore = useCallback(async (storeData: Omit<Store, 'id' | 'serial' | 'created_at' | 'updated_at'>) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const newStore = await storesService.createStore(store);
+      const newStore = await storeService.createStore(storeData);
       setState(prev => ({
         ...prev,
         stores: [...prev.stores, newStore],
@@ -100,15 +76,15 @@ export function useStores(_initialPartner?: string) {
   /**
    * Update existing store
    */
-  const updateStore = useCallback(async (cnpj: string, updates: Partial<CreateStoreRequest>) => {
+  const updateStore = useCallback(async (storeData: Store) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const updated = await storesService.updateStore(cnpj, updates);
+      const updated = await storeService.updateStore(storeData);
       setState(prev => ({
         ...prev,
-        stores: prev.stores.map(s => (s.cnpj === cnpj ? updated : s)),
-        currentStore: prev.currentStore?.cnpj === cnpj ? updated : prev.currentStore,
+        stores: prev.stores.map(s => (s.cnpj === storeData.cnpj ? updated : s)),
+        currentStore: prev.currentStore?.cnpj === storeData.cnpj ? updated : prev.currentStore,
         isLoading: false,
       }));
       return updated;
@@ -124,13 +100,13 @@ export function useStores(_initialPartner?: string) {
   }, []);
 
   /**
-   * Delete store
+   * Delete store by CNPJ
    */
   const deleteStore = useCallback(async (cnpj: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      await storesService.deleteStore(cnpj);
+      await storeService.deleteStoreByCnpj(cnpj);
       setState(prev => ({
         ...prev,
         stores: prev.stores.filter(s => s.cnpj !== cnpj),
@@ -147,35 +123,6 @@ export function useStores(_initialPartner?: string) {
       throw error;
     }
   }, []);
-
-  /**
-   * Toggle store service
-   */
-  const toggleService = useCallback(
-    async (cnpj: string, service: 'offerta' | 'oppinar' | 'prazzo', enabled: boolean) => {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-      try {
-        const updated = await storesService.toggleStoreService(cnpj, service, enabled);
-        setState(prev => ({
-          ...prev,
-          stores: prev.stores.map(s => (s.cnpj === cnpj ? updated : s)),
-          currentStore: prev.currentStore?.cnpj === cnpj ? updated : prev.currentStore,
-          isLoading: false,
-        }));
-        return updated;
-      } catch (error) {
-        const message = error instanceof Error ? error.message : `Erro ao alterar ${service}`;
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: message,
-        }));
-        throw error;
-      }
-    },
-    []
-  );
 
   /**
    * Clear current store
@@ -202,12 +149,10 @@ export function useStores(_initialPartner?: string) {
     ...state,
 
     // Methods
-    loadStores,
-    loadStore,
+    searchByCnpj,
     createStore,
     updateStore,
     deleteStore,
-    toggleService,
     clearCurrent,
     clearError,
   };

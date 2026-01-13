@@ -210,7 +210,6 @@ export const LojasPage: React.FC = () => {
         setSegments(data.segments);
         setSizes(data.sizes);
       } catch (error) {
-        console.error('Error loading reference data:', error);
         toast.error('Erro ao carregar dados de referência');
       } finally {
         setLoadingRefData(false);
@@ -232,7 +231,6 @@ export const LojasPage: React.FC = () => {
       setCities(citiesData);
       return citiesData;
     } catch (error) {
-      console.error('Error loading cities:', error);
       setCities([]);
       return [];
     } finally {
@@ -309,7 +307,6 @@ export const LojasPage: React.FC = () => {
 
       toast.success('Dados carregados da Receita Federal!');
     } catch (error) {
-      console.error('Error fetching CNPJ data:', error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
@@ -357,7 +354,6 @@ export const LojasPage: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Error searching stores:', error);
       // Verificar se o erro é de "não encontrado" ou outro erro
       const cleanCnpj = searchTerm.replace(/\D/g, '');
       setSearchedCnpj(cleanCnpj);
@@ -381,7 +377,6 @@ export const LojasPage: React.FC = () => {
       const users = await storeService.getUsersByIds(userIds);
       setStoreUsers(users || []);
     } catch (error) {
-      console.error('Error loading store users:', error);
       setStoreUsers([]);
     } finally {
       setLoadingUsers(false);
@@ -508,7 +503,6 @@ export const LojasPage: React.FC = () => {
       loadStores();
       resetForm();
     } catch (error) {
-      console.error('Error saving store:', error);
       toast.error(editingStore ? 'Erro ao atualizar loja' : 'Erro ao criar loja');
     }
   };
@@ -604,7 +598,6 @@ export const LojasPage: React.FC = () => {
       toast.success('Loja excluída com sucesso!');
       loadStores();
     } catch (error) {
-      console.error('Error deleting store:', error);
       toast.error('Erro ao excluir loja');
     }
   };

@@ -26,7 +26,7 @@ function LoginPageIntegrated() {
     e.preventDefault();
 
     if (!email || !password) {
-      toast.error('Email e senha são obrigatórios');
+      toast.error('Email e senhá são obrigatórios');
       return;
     }
 
@@ -40,7 +40,6 @@ function LoginPageIntegrated() {
       navigate('/dashboard');
     } catch (err: any) {
       toast.error(err.message || 'Erro ao fazer login');
-      console.error('Login error:', err);
     }
   };
 

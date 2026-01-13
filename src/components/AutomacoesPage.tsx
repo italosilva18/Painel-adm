@@ -1,5 +1,5 @@
 /**
- * Automacoes (Partners) Page Component
+ * Automações (Partners) Page Component
  * Management of automation partners with CRUD operations
  */
 
@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/common';
 import * as partnerService from '@/api/services/partnerService';
 import { Partner } from '@/api/services/partnerService';
 
-export const AutomacoesPage: React.FC = () => {
+export const AutomaçõesPage: React.FC = () => {
   // State
   const [partners, setPartners] = useState<Partner[]>([]);
   const [filteredPartners, setFilteredPartners] = useState<Partner[]>([]);
@@ -70,8 +70,7 @@ export const AutomacoesPage: React.FC = () => {
       setPartners(sorted);
       setFilteredPartners(sorted);
     } catch (error) {
-      console.error('Error loading partners:', error);
-      toast.error('Erro ao carregar automacoes');
+      toast.error('Erro ao carregar automações');
     } finally {
       setLoading(false);
     }
@@ -111,7 +110,6 @@ export const AutomacoesPage: React.FC = () => {
       resetForm();
       loadPartners();
     } catch (error: any) {
-      console.error('Error saving partner:', error);
       if (error.message?.includes('already exists')) {
         toast.error('Ja existe uma automacao com este codigo');
       } else {
@@ -138,7 +136,6 @@ export const AutomacoesPage: React.FC = () => {
       setDeleteConfirm(null);
       loadPartners();
     } catch (error) {
-      console.error('Error deleting partner:', error);
       toast.error('Erro ao excluir automacao');
     }
   };
@@ -161,7 +158,7 @@ export const AutomacoesPage: React.FC = () => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `automacoes_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `automações_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
   };
 
@@ -290,7 +287,7 @@ export const AutomacoesPage: React.FC = () => {
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <Cog className="w-5 h-5 text-cyan-600" />
-              Automacoes Cadastradas
+              Automações Cadastradas
             </h3>
             <span className="text-sm text-gray-500">
               {filteredPartners.length} de {partners.length} registros
@@ -300,7 +297,7 @@ export const AutomacoesPage: React.FC = () => {
           {loading ? (
             <div className="p-12 text-center">
               <RefreshCw className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
-              <p className="text-gray-500">Carregando automacoes...</p>
+              <p className="text-gray-500">Carregando automações...</p>
             </div>
           ) : filteredPartners.length === 0 ? (
             <div className="p-12 text-center">
@@ -455,4 +452,4 @@ export const AutomacoesPage: React.FC = () => {
   );
 };
 
-export default AutomacoesPage;
+export default AutomaçõesPage;

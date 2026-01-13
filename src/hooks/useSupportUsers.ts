@@ -4,8 +4,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import * as supportService from '@/api/services/supportUsers';
-import { SupportUser, CreateSupportUserRequest } from '@/api/types';
+import * as supportService from '@/api/services/supportService';
+import { SupportUser } from '@/api/types';
 
 export interface SupportUsersState {
   users: SupportUser[];
@@ -14,7 +14,7 @@ export interface SupportUsersState {
   error: string | null;
 }
 
-export function useSupportUsers(_initialPartner?: string) {
+export function useSupportUsers() {
   const [state, setState] = useState<SupportUsersState>({
     users: [],
     currentUser: null,
@@ -23,46 +23,32 @@ export function useSupportUsers(_initialPartner?: string) {
   });
 
   /**
-   * Load support users by partner
+   * Search support user by email
    */
-  const loadUsers = useCallback(async (partner: string) => {
+  const searchByEmail = useCallback(async (email: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const users = await supportService.getSupportUsersByPartner(partner);
-      setState(prev => ({
-        ...prev,
-        users,
-        isLoading: false,
-      }));
-      return users;
+      const user = await supportService.getSupportUserByEmail(email);
+      if (user) {
+        setState(prev => ({
+          ...prev,
+          currentUser: user,
+          users: [user],
+          isLoading: false,
+        }));
+        return user;
+      } else {
+        setState(prev => ({
+          ...prev,
+          currentUser: null,
+          users: [],
+          isLoading: false,
+        }));
+        return null;
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar usuarios de suporte';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, []);
-
-  /**
-   * Load single support user by email
-   */
-  const loadUser = useCallback(async (email: string) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const user = await supportService.getSupportUser(email);
-      setState(prev => ({
-        ...prev,
-        currentUser: user,
-        isLoading: false,
-      }));
-      return user;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar usuario';
+      const message = error instanceof Error ? error.message : 'Erro ao buscar usuário de suporte';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -75,19 +61,26 @@ export function useSupportUsers(_initialPartner?: string) {
   /**
    * Create new support user
    */
-  const createUser = useCallback(async (user: CreateSupportUserRequest) => {
+  const createUser = useCallback(async (userData: {
+    name: string;
+    email: string;
+    partner: string;
+    active?: boolean;
+    password?: string;
+  }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const newUser = await supportService.createSupportUser(user);
+      const newUser = await supportService.createSupportUser(userData);
       setState(prev => ({
         ...prev,
         users: [...prev.users, newUser],
+        currentUser: newUser,
         isLoading: false,
       }));
       return newUser;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao criar usuario de suporte';
+      const message = error instanceof Error ? error.message : 'Erro ao criar usuário de suporte';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -100,20 +93,25 @@ export function useSupportUsers(_initialPartner?: string) {
   /**
    * Update support user
    */
-  const updateUser = useCallback(async (email: string, updates: Partial<CreateSupportUserRequest>) => {
+  const updateUser = useCallback(async (userData: {
+    email: string;
+    name?: string;
+    partner?: string;
+    active?: boolean;
+  }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const updated = await supportService.updateSupportUserByEmail(email, updates);
+      const updated = await supportService.updateSupportUser(userData);
       setState(prev => ({
         ...prev,
-        users: prev.users.map(u => (u.email === email ? updated : u)),
-        currentUser: prev.currentUser?.email === email ? updated : prev.currentUser,
+        users: prev.users.map(u => (u.email === userData.email ? updated : u)),
+        currentUser: prev.currentUser?.email === userData.email ? updated : prev.currentUser,
         isLoading: false,
       }));
       return updated;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao atualizar usuario';
+      const message = error instanceof Error ? error.message : 'Erro ao atualizar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -124,7 +122,7 @@ export function useSupportUsers(_initialPartner?: string) {
   }, []);
 
   /**
-   * Delete support user
+   * Delete support user by email
    */
   const deleteUser = useCallback(async (email: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -138,62 +136,7 @@ export function useSupportUsers(_initialPartner?: string) {
         isLoading: false,
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao deletar usuario';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, []);
-
-  /**
-   * Toggle user active status
-   */
-  const toggleStatus = useCallback(async (id: string, active: boolean) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const updated = await supportService.toggleSupportUserStatus(id, active);
-      setState(prev => ({
-        ...prev,
-        users: prev.users.map(u => (u._id === id ? updated : u)),
-        currentUser: prev.currentUser?._id === id ? updated : prev.currentUser,
-        isLoading: false,
-      }));
-      return updated;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao atualizar status';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, []);
-
-  /**
-   * Search support users
-   */
-  const searchUsers = useCallback(async (query: {
-    email?: string;
-    partner?: string;
-    name?: string;
-  }) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const users = await supportService.searchSupportUsers(query);
-      setState(prev => ({
-        ...prev,
-        users,
-        isLoading: false,
-      }));
-      return users;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao pesquisar usuarios';
+      const message = error instanceof Error ? error.message : 'Erro ao deletar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -228,13 +171,10 @@ export function useSupportUsers(_initialPartner?: string) {
     ...state,
 
     // Methods
-    loadUsers,
-    loadUser,
+    searchByEmail,
     createUser,
     updateUser,
     deleteUser,
-    toggleStatus,
-    searchUsers,
     clearCurrent,
     clearError,
   };

@@ -10,11 +10,21 @@ export * from './auth';
 export * from './dashboardService';
 
 // CRUD services
-export * from './stores';
-export * from './mobileUsers';
-export * from './supportUsers';
+export * from './storeService';
+export * from './mobileService';
+export * from './supportService';
+export * from './modulesService';
 
-// Reference data
+// Partner service (CRUD)
+export {
+  getPartnerByCode,
+  createPartner,
+  updatePartner,
+  deletePartner,
+  type PartnerRequest,
+} from './partnerService';
+
+// Reference data (includes getPartners and Partner type)
 export * from './referenceData';
 
 // CNPJ lookup (Receita Federal via BrasilAPI)

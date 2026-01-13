@@ -47,7 +47,6 @@ export const DashboardPage: React.FC = () => {
         toast.success('Dados atualizados!');
       }
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
       toast.error('Erro ao carregar dados do dashboard');
       setStats({
         activeStores: 0,
@@ -69,19 +68,19 @@ export const DashboardPage: React.FC = () => {
 
   const quickAccess = [
     { label: 'Lojas', description: 'Gerenciar estabelecimentos', path: '/lojas', color: 'blue' as const },
-    { label: 'Mobile', description: 'Usuarios do aplicativo', path: '/mobile', color: 'purple' as const },
+    { label: 'Mobile', description: 'Usuários do aplicativo', path: '/mobile', color: 'purple' as const },
     { label: 'Suporte', description: 'Equipe de suporte', path: '/suporte', color: 'green' as const },
-    { label: 'Relatorios', description: 'Estatisticas e exportacao', path: '/relatorios', color: 'orange' as const },
-    { label: 'Automacoes', description: 'Sistemas comerciais', path: '/automacoes', color: 'cyan' as const },
-    { label: 'Modulos', description: 'Visualizar modulos', path: '/modulos', color: 'purple' as const },
+    { label: 'Relatórios', description: 'Estatísticas e exportação', path: '/relatórios', color: 'orange' as const },
+    { label: 'Automações', description: 'Sistemas comerciais', path: '/automações', color: 'cyan' as const },
+    { label: 'Módulos', description: 'Visualizar módulos', path: '/módulos', color: 'purple' as const },
   ];
 
   const recentActivity = [
-    { action: 'Nova loja cadastrada', detail: 'Mercado Bom Preco - CNPJ: 12.345.678/0001-90', time: 'ha 5 min', type: 'store' },
-    { action: 'Usuario editado', detail: 'Joao Silva - mobile@email.com', time: 'ha 15 min', type: 'user' },
-    { action: 'Parceiro criado', detail: 'Tech Solutions Ltda', time: 'ha 1 hora', type: 'partner' },
-    { action: 'Automacao atualizada', detail: 'Sistema PDV Integrado', time: 'ha 2 horas', type: 'automation' },
-    { action: 'Modulo ativado', detail: 'OFFERTA - Loja Central', time: 'ha 3 horas', type: 'module' },
+    { action: 'Nova loja cadastrada', detail: 'Mercado Bom Preco - CNPJ: 12.345.678/0001-90', time: 'há 5 min', type: 'store' },
+    { action: 'Usuário editado', detail: 'Joao Silva - mobile@email.com', time: 'há 15 min', type: 'user' },
+    { action: 'Parceiro criado', detail: 'Tech Solutions Ltda', time: 'há 1 hora', type: 'partner' },
+    { action: 'Automacao atualizada', detail: 'Sistema PDV Integrado', time: 'há 2 horas', type: 'automation' },
+    { action: 'Modulo ativado', detail: 'OFFERTA - Loja Central', time: 'há 3 horas', type: 'module' },
   ];
 
   const getActivityColor = (type: string) => {
@@ -156,7 +155,7 @@ export const DashboardPage: React.FC = () => {
       <div className="border-b bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-          <p className="text-gray-500 mt-1">Visao geral do sistema MARGEM</p>
+          <p className="text-gray-500 mt-1">Visão geral do sistema MARGEM</p>
         </div>
       </div>
 
@@ -173,7 +172,7 @@ export const DashboardPage: React.FC = () => {
             trend={{ value: 12, isPositive: true }}
           />
           <StatCard
-            title="Usuarios Mobile"
+            title="Usuários Mobile"
             value={stats?.mobileUsers || 0}
             icon={Smartphone}
             color="purple"
@@ -189,7 +188,7 @@ export const DashboardPage: React.FC = () => {
             trend={{ value: 5, isPositive: true }}
           />
           <StatCard
-            title="Total de Automacoes"
+            title="Total de Automações"
             value={stats?.totalPartners || 0}
             icon={Settings}
             color="orange"
@@ -200,7 +199,7 @@ export const DashboardPage: React.FC = () => {
 
         {/* Quick Access */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Acesso Rapido</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Acesso Rápido</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {quickAccess.map((item) => (
               <MenuCard

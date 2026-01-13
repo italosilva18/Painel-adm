@@ -55,7 +55,6 @@ export const SuportePage: React.FC = () => {
         const partnersData = await refDataService.getPartners();
         setPartners(partnersData);
       } catch (error) {
-        console.error('Error loading partners:', error);
         toast.error('Erro ao carregar parceiros');
       } finally {
         setLoadingRefData(false);
@@ -85,7 +84,6 @@ export const SuportePage: React.FC = () => {
         setCurrentUser(null);
       }
     } catch (error) {
-      console.error('Error searching user:', error);
       // Verificar se o erro é de "não encontrado"
       setSearchedEmail(searchTerm.trim());
       setShowEmailNotFoundModal(true);
@@ -160,7 +158,6 @@ export const SuportePage: React.FC = () => {
       }
       resetForm();
     } catch (error) {
-      console.error('Error saving support user:', error);
       toast.error(editingUser ? 'Erro ao atualizar usuário de suporte' : 'Erro ao criar usuário de suporte');
     }
   };
@@ -192,7 +189,6 @@ export const SuportePage: React.FC = () => {
       setCurrentUser(null);
       setSearchTerm('');
     } catch (error) {
-      console.error('Error deleting support user:', error);
       toast.error('Erro ao excluir usuário de suporte');
     }
   };

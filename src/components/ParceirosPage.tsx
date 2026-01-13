@@ -53,7 +53,6 @@ export const ParceirosPage: React.FC = () => {
       setPartners(data);
       setFilteredPartners(data);
     } catch (error) {
-      console.error('Error loading partners:', error);
       toast.error('Erro ao carregar parceiros');
     } finally {
       setLoading(false);
@@ -94,7 +93,6 @@ export const ParceirosPage: React.FC = () => {
       loadPartners();
       resetForm();
     } catch (error: any) {
-      console.error('Error saving partner:', error);
       if (error.message?.includes('already exists')) {
         toast.error('Já existe um parceiro com este código');
       } else {
@@ -123,7 +121,6 @@ export const ParceirosPage: React.FC = () => {
       toast.success('Parceiro excluído com sucesso!');
       loadPartners();
     } catch (error) {
-      console.error('Error deleting partner:', error);
       toast.error('Erro ao excluir parceiro');
     }
   };

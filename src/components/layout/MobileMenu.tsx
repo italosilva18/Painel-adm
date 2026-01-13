@@ -17,8 +17,8 @@ import { useAuthStore } from "@/store/authStore";
 
 const menuItems = [
   { path: "/suporte", label: "Suporte", icon: HeadphonesIcon, description: "Usuários de suporte" },
-  { path: "/automacoes", label: "Automações", icon: Settings, description: "Sistemas de automação" },
-  { path: "/modulos", label: "Módulos", icon: Boxes, description: "Módulos do sistema" },
+  { path: "/automações", label: "Automações", icon: Settings, description: "Sistemas de automação" },
+  { path: "/módulos", label: "Módulos", icon: Boxes, description: "Módulos do sistema" },
 ];
 
 interface MobileMenuProps {

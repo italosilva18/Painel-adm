@@ -28,14 +28,14 @@ const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: 'Home', path: '/dashboard' },
   { icon: Building2, label: 'Lojas', path: '/lojas' },
   { icon: Smartphone, label: 'Mobile', path: '/mobile' },
-  { icon: FileBarChart, label: 'Relatorios', path: '/relatorios' },
+  { icon: FileBarChart, label: 'Relatórios', path: '/relatórios' },
 ];
 
 const moreItems: NavItem[] = [
   { icon: Users, label: 'Suporte', path: '/suporte' },
   { icon: Users, label: 'Parceiros', path: '/parceiros' },
-  { icon: Settings, label: 'Automacoes', path: '/automacoes' },
-  { icon: Boxes, label: 'Modulos', path: '/modulos' },
+  { icon: Settings, label: 'Automações', path: '/automações' },
+  { icon: Boxes, label: 'Módulos', path: '/módulos' },
 ];
 
 interface BottomNavigationProps {

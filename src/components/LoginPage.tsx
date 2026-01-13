@@ -31,17 +31,17 @@ export const LoginPage: React.FC = () => {
     setValidationError(null);
 
     if (!email.trim()) {
-      setValidationError('E-mail e obrigatorio');
+      setValidationError('E-mail é obrigatório');
       return false;
     }
 
     if (!validateEmail(email)) {
-      setValidationError('E-mail invalido');
+      setValidationError('E-mail inválido');
       return false;
     }
 
     if (!password) {
-      setValidationError('Senha e obrigatoria');
+      setValidationError('Senha é obrigatória');
       return false;
     }
 
@@ -64,7 +64,6 @@ export const LoginPage: React.FC = () => {
       await login({ email: email.trim(), password });
       navigate('/dashboard');
     } catch (err) {
-      console.error('Login failed:', err);
     }
   };
 

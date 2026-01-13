@@ -1,5 +1,5 @@
 /**
- * Relatorios Page Component
+ * Relatórios Page Component
  * Reports and statistics for the admin panel
  */
 
@@ -24,7 +24,7 @@ import * as partnerService from '@/api/services/partnerService';
 import { Partner } from '@/api/services/partnerService';
 import { ReportStatistics, StoreReportRow, ReportFilters } from '@/api/services/reportService';
 
-export const RelatoriosPage: React.FC = () => {
+export const RelatóriosPage: React.FC = () => {
   // State
   const [stats, setStats] = useState<ReportStatistics | null>(null);
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -59,7 +59,6 @@ export const RelatoriosPage: React.FC = () => {
       setStats(statsData);
       setPartners(partnersData);
     } catch (error) {
-      console.error('Error loading initial data:', error);
       toast.error('Erro ao carregar dados iniciais');
     } finally {
       setLoading(false);
@@ -82,7 +81,6 @@ export const RelatoriosPage: React.FC = () => {
       setReportData([]);
       setCurrentPage(1);
     } catch (error) {
-      console.error('Error generating report:', error);
       toast.dismiss('generate-report');
       toast.error('Erro ao gerar relatório');
     } finally {
@@ -101,7 +99,6 @@ export const RelatoriosPage: React.FC = () => {
       reportService.exportToCSV(reportData, filename);
       toast.success('Relatório exportado com sucesso!');
     } catch (error) {
-      console.error('Error exporting CSV:', error);
       toast.error('Erro ao exportar relatório');
     }
   };
@@ -349,6 +346,7 @@ export const RelatoriosPage: React.FC = () => {
                       onClick={() => goToPage(currentPage - 1)}
                       disabled={currentPage === 1}
                       className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Página anterior"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -369,6 +367,8 @@ export const RelatoriosPage: React.FC = () => {
                                 ? 'bg-orange-500 text-white'
                                 : 'border border-gray-300 hover:bg-gray-50'
                             }`}
+                            aria-label={`Ir para página ${page}`}
+                            aria-current={currentPage === page ? 'page' : undefined}
                           >
                             {page}
                           </button>
@@ -387,6 +387,7 @@ export const RelatoriosPage: React.FC = () => {
                       onClick={() => goToPage(currentPage + 1)}
                       disabled={currentPage === totalPages}
                       className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Próxima página"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -412,4 +413,4 @@ export const RelatoriosPage: React.FC = () => {
   );
 };
 
-export default RelatoriosPage;
+export default RelatóriosPage;

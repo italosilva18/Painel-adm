@@ -60,7 +60,6 @@ export async function getReportStatistics(): Promise<ReportStatistics> {
       totalPartners: partners.length || 0,
     };
   } catch (error) {
-    console.error('Error loading report statistics:', error);
     return {
       totalStores: 0,
       activeStores: 0,

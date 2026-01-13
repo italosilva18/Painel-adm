@@ -4,18 +4,19 @@
  */
 
 import { useState, useCallback } from 'react';
-import * as mobileService from '@/api/services/mobileUsers';
-import { MobileUser, CreateMobileUserRequest } from '@/api/types';
+import * as mobileService from '@/api/services/mobileService';
+import { MobileUser } from '@/api/types';
+import { UserStore } from '@/api/services/mobileService';
 
 export interface MobileUsersState {
   users: MobileUser[];
   currentUser: MobileUser | null;
-  userStores: string[];
+  userStores: UserStore[];
   isLoading: boolean;
   error: string | null;
 }
 
-export function useMobileUsers(_initialPartner?: string) {
+export function useMobileUsers() {
   const [state, setState] = useState<MobileUsersState>({
     users: [],
     currentUser: null,
@@ -25,21 +26,34 @@ export function useMobileUsers(_initialPartner?: string) {
   });
 
   /**
-   * Load mobile users by partner
+   * Search mobile user by email
    */
-  const loadUsers = useCallback(async (partner: string) => {
+  const searchByEmail = useCallback(async (email: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const users = await mobileService.getMobileUsersByPartner(partner);
-      setState(prev => ({
-        ...prev,
-        users,
-        isLoading: false,
-      }));
-      return users;
+      const result = await mobileService.getMobileUserWithStores(email);
+      if (result) {
+        setState(prev => ({
+          ...prev,
+          currentUser: result.user,
+          userStores: result.stores,
+          users: [result.user],
+          isLoading: false,
+        }));
+        return result;
+      } else {
+        setState(prev => ({
+          ...prev,
+          currentUser: null,
+          userStores: [],
+          users: [],
+          isLoading: false,
+        }));
+        return null;
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar usuarios';
+      const message = error instanceof Error ? error.message : 'Erro ao buscar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -50,46 +64,34 @@ export function useMobileUsers(_initialPartner?: string) {
   }, []);
 
   /**
-   * Load single user by email
+   * Search mobile user by phone
    */
-  const loadUser = useCallback(async (email: string) => {
+  const searchByPhone = useCallback(async (phone: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const user = await mobileService.getMobileUser(email);
-      setState(prev => ({
-        ...prev,
-        currentUser: user,
-        isLoading: false,
-      }));
-      return user;
+      const result = await mobileService.getMobileUserWithStoresByPhone(phone);
+      if (result) {
+        setState(prev => ({
+          ...prev,
+          currentUser: result.user,
+          userStores: result.stores,
+          users: [result.user],
+          isLoading: false,
+        }));
+        return result;
+      } else {
+        setState(prev => ({
+          ...prev,
+          currentUser: null,
+          userStores: [],
+          users: [],
+          isLoading: false,
+        }));
+        return null;
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar usuario';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, []);
-
-  /**
-   * Load user stores
-   */
-  const loadUserStores = useCallback(async (email: string) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const stores = await mobileService.getUserStores(email);
-      setState(prev => ({
-        ...prev,
-        userStores: stores,
-        isLoading: false,
-      }));
-      return stores;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao carregar lojas do usuario';
+      const message = error instanceof Error ? error.message : 'Erro ao buscar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -102,19 +104,28 @@ export function useMobileUsers(_initialPartner?: string) {
   /**
    * Create new mobile user
    */
-  const createUser = useCallback(async (user: CreateMobileUserRequest) => {
+  const createUser = useCallback(async (userData: {
+    name: string;
+    email: string;
+    phone: string;
+    _type: string;
+    partner: string;
+    active: boolean;
+    password?: string;
+  }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const newUser = await mobileService.createMobileUser(user);
+      const newUser = await mobileService.createMobileUser(userData);
       setState(prev => ({
         ...prev,
         users: [...prev.users, newUser],
+        currentUser: newUser,
         isLoading: false,
       }));
       return newUser;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao criar usuario';
+      const message = error instanceof Error ? error.message : 'Erro ao criar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -127,20 +138,28 @@ export function useMobileUsers(_initialPartner?: string) {
   /**
    * Update mobile user
    */
-  const updateUser = useCallback(async (email: string, updates: Partial<CreateMobileUserRequest>) => {
+  const updateUser = useCallback(async (userData: {
+    _id?: string;
+    email: string;
+    name?: string;
+    phone?: string;
+    _type?: string;
+    partner?: string;
+    active?: boolean;
+  }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const updated = await mobileService.updateMobileUser(email, updates);
+      const updated = await mobileService.updateMobileUser(userData);
       setState(prev => ({
         ...prev,
-        users: prev.users.map(u => (u.email === email ? updated : u)),
-        currentUser: prev.currentUser?.email === email ? updated : prev.currentUser,
+        users: prev.users.map(u => (u.email === userData.email ? updated : u)),
+        currentUser: prev.currentUser?.email === userData.email ? updated : prev.currentUser,
         isLoading: false,
       }));
       return updated;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao atualizar usuario';
+      const message = error instanceof Error ? error.message : 'Erro ao atualizar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -151,21 +170,22 @@ export function useMobileUsers(_initialPartner?: string) {
   }, []);
 
   /**
-   * Delete mobile user
+   * Delete mobile user by email
    */
   const deleteUser = useCallback(async (email: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      await mobileService.deleteMobileUser(email);
+      await mobileService.deleteMobileUserByEmail(email);
       setState(prev => ({
         ...prev,
         users: prev.users.filter(u => u.email !== email),
         currentUser: prev.currentUser?.email === email ? null : prev.currentUser,
+        userStores: prev.currentUser?.email === email ? [] : prev.userStores,
         isLoading: false,
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao deletar usuario';
+      const message = error instanceof Error ? error.message : 'Erro ao deletar usuário';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -182,14 +202,18 @@ export function useMobileUsers(_initialPartner?: string) {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const updated = await mobileService.addStoreToUser(email, cnpj);
-      setState(prev => ({
-        ...prev,
-        currentUser: prev.currentUser?.email === email ? updated : prev.currentUser,
-        userStores: [...prev.userStores, cnpj],
-        isLoading: false,
-      }));
-      return updated;
+      await mobileService.addStoreToUser(email, cnpj);
+      // Reload user stores
+      if (state.currentUser?._id) {
+        const stores = await mobileService.getUserStores(state.currentUser._id);
+        setState(prev => ({
+          ...prev,
+          userStores: stores,
+          isLoading: false,
+        }));
+      } else {
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao adicionar loja';
       setState(prev => ({
@@ -199,7 +223,7 @@ export function useMobileUsers(_initialPartner?: string) {
       }));
       throw error;
     }
-  }, []);
+  }, [state.currentUser]);
 
   /**
    * Remove store from user
@@ -211,37 +235,11 @@ export function useMobileUsers(_initialPartner?: string) {
       await mobileService.removeStoreFromUser(email, cnpj);
       setState(prev => ({
         ...prev,
-        userStores: prev.userStores.filter(s => s !== cnpj),
+        userStores: prev.userStores.filter(s => s.cnpj !== cnpj),
         isLoading: false,
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao remover loja';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-      throw error;
-    }
-  }, []);
-
-  /**
-   * Toggle user active status
-   */
-  const toggleStatus = useCallback(async (email: string, active: boolean) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const updated = await mobileService.toggleMobileUserStatus(email, active);
-      setState(prev => ({
-        ...prev,
-        users: prev.users.map(u => (u.email === email ? updated : u)),
-        currentUser: prev.currentUser?.email === email ? updated : prev.currentUser,
-        isLoading: false,
-      }));
-      return updated;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao atualizar status';
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -277,15 +275,13 @@ export function useMobileUsers(_initialPartner?: string) {
     ...state,
 
     // Methods
-    loadUsers,
-    loadUser,
-    loadUserStores,
+    searchByEmail,
+    searchByPhone,
     createUser,
     updateUser,
     deleteUser,
     addStore,
     removeStore,
-    toggleStatus,
     clearCurrent,
     clearError,
   };
