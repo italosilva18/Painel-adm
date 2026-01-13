@@ -3,165 +3,172 @@
  * Handles report generation and data aggregation for analytics
  */
 
-import { Store } from '@/api/types';
-import { getDashboardStats } from './dashboardService';
-import { getPartners } from './partnerService';
+import apiClient from '@/api/config';
+import { apiConfig } from '@/api/config';
+import { parseApiError } from '@/api/errorHandler';
+
+/**
+ * Report Summary Response
+ */
+export interface ReportSummary {
+  totalStores: number;
+  activeStores: number;
+  inactiveStores: number;
+  totalMobileUsers: number;
+  totalSupport: number;
+  storesByPartner: PartnerCount[];
+  moduleStats: ReportModuleStats;
+  date: string;
+}
+
+export interface PartnerCount {
+  partner: string;
+  count: number;
+}
+
+export interface ReportModuleStats {
+  offerta: number;
+  oppinar: number;
+  prazzo: number;
+  scanner: number;
+}
+
+/**
+ * Store Report Item
+ */
+export interface StoreReportItem {
+  _id: string;
+  cnpj: string;
+  name: string;
+  company: string;
+  partner: string;
+  city: string;
+  state: string;
+  active: boolean;
+  offerta: boolean;
+  oppinar: boolean;
+  prazzo: boolean;
+  hasScanner: boolean;
+  createdAt: string;
+}
+
+/**
+ * Stores Report Response
+ */
+export interface StoresReportResponse {
+  data: StoreReportItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 /**
  * Report filters interface
  */
 export interface ReportFilters {
-  startDate?: string;
-  endDate?: string;
+  page?: number;
+  limit?: number;
   partner?: string;
-  reportType?: 'stores' | 'modules' | 'activity';
+  active?: 'true' | 'false' | '';
+  state?: string;
 }
 
 /**
- * Store report row interface
+ * Get report summary with statistics
  */
-export interface StoreReportRow {
-  cnpj: string;
-  name: string;
-  fantasy_name: string;
-  partner: string;
-  modules: string[];
-  activeModules: number;
-  scannerActive: boolean;
-  status: 'Ativo' | 'Inativo';
-  created_at?: string;
-}
-
-/**
- * Report statistics interface
- */
-export interface ReportStatistics {
-  totalStores: number;
-  activeStores: number;
-  totalMobileUsers: number;
-  storesWithScanner: number;
-  totalPartners: number;
-}
-
-/**
- * Get report statistics
- * Aggregates data from dashboard and partners
- */
-export async function getReportStatistics(): Promise<ReportStatistics> {
+export async function getReportSummary(): Promise<ReportSummary> {
   try {
-    const dashboardStats = await getDashboardStats();
-    const partners = await getPartners();
-
-    return {
-      totalStores: dashboardStats.activeStores || 0,
-      activeStores: dashboardStats.activeStores || 0,
-      totalMobileUsers: dashboardStats.mobileUsers || 0,
-      storesWithScanner: dashboardStats.totalBasics || 0,
-      totalPartners: partners.length || 0,
-    };
+    const response = await apiClient.get<ReportSummary>(apiConfig.endpoints.reportsSummary);
+    return response.data;
   } catch (error) {
-    return {
-      totalStores: 0,
-      activeStores: 0,
-      totalMobileUsers: 0,
-      storesWithScanner: 0,
-      totalPartners: 0,
-    };
+    throw parseApiError(error);
   }
 }
 
 /**
- * Convert stores to report rows
- * This is a client-side transformation since API doesn't have a report endpoint
+ * Get paginated stores report
  */
-export function storeToReportRow(store: Store): StoreReportRow {
-  const modules: string[] = [];
+export async function getStoresReport(filters: ReportFilters = {}): Promise<StoresReportResponse> {
+  try {
+    const params: Record<string, string | number> = {};
 
-  if (store.offerta || store.service_offerta) modules.push('OFFERTA');
-  if (store.oppinar || store.service_oppinar) modules.push('OPPINAR');
-  if (store.prazzo || store.service_prazzo) modules.push('PRAZZO');
+    if (filters.page) params.page = filters.page;
+    if (filters.limit) params.limit = filters.limit;
+    if (filters.partner && filters.partner !== 'all') params.partner = filters.partner;
+    if (filters.active) params.active = filters.active;
 
-  const scannerActive = typeof store.scanner === 'object'
-    ? store.scanner.active
-    : Boolean(store.scanner || store.service_scanner);
-
-  if (scannerActive) modules.push('SCANNER');
-
-  return {
-    cnpj: store.cnpj,
-    name: store.name || store.company || '',
-    fantasy_name: store.fantasy_name || store.tradeName || '',
-    partner: store.partner || '',
-    modules,
-    activeModules: modules.length,
-    scannerActive,
-    status: store.active ? 'Ativo' : 'Inativo',
-    created_at: store.created_at || store.createAt || store.inclusao,
-  };
+    const response = await apiClient.get<StoresReportResponse>(
+      apiConfig.endpoints.reportsStores,
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    throw parseApiError(error);
+  }
 }
 
 /**
- * Filter stores based on report criteria
+ * Get all stores for export (fetches all pages)
  */
-export function filterStores(
-  stores: Store[],
-  filters: ReportFilters
-): Store[] {
-  let filtered = [...stores];
+export async function getAllStoresForExport(filters: ReportFilters = {}): Promise<StoreReportItem[]> {
+  try {
+    const allStores: StoreReportItem[] = [];
+    let page = 1;
+    const limit = 100;
+    let hasMore = true;
 
-  // Filter by partner
-  if (filters.partner && filters.partner !== 'all') {
-    filtered = filtered.filter(store => store.partner === filters.partner);
+    while (hasMore) {
+      const response = await getStoresReport({ ...filters, page, limit });
+      allStores.push(...response.data);
+
+      hasMore = page < response.totalPages;
+      page++;
+
+      // Safety limit
+      if (page > 100) break;
+    }
+
+    return allStores;
+  } catch (error) {
+    throw parseApiError(error);
   }
-
-  // Filter by date range (if created_at exists)
-  if (filters.startDate) {
-    const startDate = new Date(filters.startDate);
-    filtered = filtered.filter(store => {
-      const storeDate = new Date(store.created_at || store.createAt || store.inclusao || '');
-      return storeDate >= startDate;
-    });
-  }
-
-  if (filters.endDate) {
-    const endDate = new Date(filters.endDate);
-    filtered = filtered.filter(store => {
-      const storeDate = new Date(store.created_at || store.createAt || store.inclusao || '');
-      return storeDate <= endDate;
-    });
-  }
-
-  return filtered;
 }
 
 /**
  * Export stores to CSV format
  */
-export function exportToCSV(stores: StoreReportRow[], filename = 'relatorio-lojas.csv'): void {
+export function exportStoresToCSV(stores: StoreReportItem[], filename = 'relatorio-lojas.csv'): void {
   // CSV headers
   const headers = [
     'CNPJ',
-    'Razão Social',
     'Nome Fantasia',
-    'Parceiro',
-    'Módulos Ativos',
-    'Lista de Módulos',
-    'Scanner Ativo',
+    'Razão Social',
+    'Parceiro/Automação',
+    'Cidade',
+    'Estado',
     'Status',
-    'Data de Criação'
+    'Scanner',
+    'Offerta',
+    'Oppinar',
+    'Prazzo',
+    'Data Cadastro'
   ];
 
   // Convert data to CSV rows
   const csvRows = stores.map(store => [
     store.cnpj,
-    `"${store.name}"`,
-    `"${store.fantasy_name}"`,
-    `"${store.partner}"`,
-    store.activeModules,
-    `"${store.modules.join(', ')}"`,
-    store.scannerActive ? 'Sim' : 'Não',
-    store.status,
-    store.created_at || 'N/A'
+    `"${store.name || ''}"`,
+    `"${store.company || ''}"`,
+    `"${store.partner || ''}"`,
+    `"${store.city || ''}"`,
+    store.state || '',
+    store.active ? 'Ativo' : 'Inativo',
+    store.hasScanner ? 'Sim' : 'Não',
+    store.offerta ? 'Sim' : 'Não',
+    store.oppinar ? 'Sim' : 'Não',
+    store.prazzo ? 'Sim' : 'Não',
+    store.createdAt || 'N/A'
   ]);
 
   // Combine headers and rows
@@ -171,6 +178,71 @@ export function exportToCSV(stores: StoreReportRow[], filename = 'relatorio-loja
   ].join('\n');
 
   // Create blob and download
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Export summary to CSV
+ */
+export function exportSummaryToCSV(summary: ReportSummary, filename = 'resumo-executivo.csv'): void {
+  const lines = [
+    'Resumo Executivo - MARGEM',
+    `Data do Relatório,${summary.date}`,
+    '',
+    'ESTATÍSTICAS GERAIS',
+    `Total de Lojas,${summary.totalStores}`,
+    `Lojas Ativas,${summary.activeStores}`,
+    `Lojas Inativas,${summary.inactiveStores}`,
+    `Usuários Mobile,${summary.totalMobileUsers}`,
+    `Usuários Suporte,${summary.totalSupport}`,
+    '',
+    'MÓDULOS ATIVOS',
+    `Scanner (Plano Básico),${summary.moduleStats.scanner}`,
+    `Offerta,${summary.moduleStats.offerta}`,
+    `Oppinar,${summary.moduleStats.oppinar}`,
+    `Prazzo,${summary.moduleStats.prazzo}`,
+    '',
+    'TOP 20 PARCEIROS/AUTOMAÇÕES',
+    'Parceiro,Quantidade de Lojas',
+    ...summary.storesByPartner.map(p => `"${p.partner}",${p.count}`)
+  ];
+
+  const csvContent = lines.join('\n');
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/**
+ * Export partners report to CSV
+ */
+export function exportPartnersToCSV(partners: PartnerCount[], filename = 'lojas-por-parceiro.csv'): void {
+  const headers = ['Parceiro/Automação', 'Quantidade de Lojas'];
+  const csvRows = partners.map(p => [`"${p.partner}"`, p.count]);
+
+  const csvContent = [
+    headers.join(','),
+    ...csvRows.map(row => row.join(','))
+  ].join('\n');
+
   const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);

@@ -64,6 +64,10 @@ export const apiConfig = {
 
     // Migration
     migration: '/migration',
+
+    // Reports
+    reportsSummary: '/reports/summary',
+    reportsStores: '/reports/stores',
   },
 };
 
