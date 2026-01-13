@@ -70,9 +70,9 @@ export const DashboardPage: React.FC = () => {
     { label: 'Lojas', description: 'Gerenciar estabelecimentos', path: '/lojas', color: 'blue' as const },
     { label: 'Mobile', description: 'Usuários do aplicativo', path: '/mobile', color: 'purple' as const },
     { label: 'Suporte', description: 'Equipe de suporte', path: '/suporte', color: 'green' as const },
-    { label: 'Relatórios', description: 'Estatísticas e exportação', path: '/relatórios', color: 'orange' as const },
-    { label: 'Automações', description: 'Sistemas comerciais', path: '/automações', color: 'cyan' as const },
-    { label: 'Módulos', description: 'Visualizar módulos', path: '/módulos', color: 'purple' as const },
+    { label: 'Relatórios', description: 'Estatísticas e exportação', path: '/relatorios', color: 'orange' as const },
+    { label: 'Automações', description: 'Sistemas comerciais', path: '/automacoes', color: 'cyan' as const },
+    { label: 'Módulos', description: 'Visualizar módulos', path: '/modulos', color: 'purple' as const },
   ];
 
   const recentActivity = [

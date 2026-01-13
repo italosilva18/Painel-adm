@@ -33,9 +33,9 @@ const navItems = [
   { path: '/mobile', label: 'Mobile', icon: Smartphone },
   { path: '/suporte', label: 'Suporte', icon: HeadphonesIcon },
   { path: '/parceiros', label: 'Parceiros', icon: Users },
-  { path: '/automações', label: 'Automações', icon: Settings },
-  { path: '/módulos', label: 'Módulos', icon: Boxes },
-  { path: '/relatórios', label: 'Relatórios', icon: FileBarChart },
+  { path: '/automacoes', label: 'Automações', icon: Settings },
+  { path: '/modulos', label: 'Módulos', icon: Boxes },
+  { path: '/relatorios', label: 'Relatórios', icon: FileBarChart },
 ];
 
 export const PageHeader: React.FC<PageHeaderProps> = ({
