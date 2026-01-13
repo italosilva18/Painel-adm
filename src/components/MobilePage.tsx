@@ -18,7 +18,7 @@ import { MobileUser } from '@/api/types';
 import * as refDataService from '@/api/services/referenceData';
 import { Partner } from '@/api/services/referenceData';
 import { applyPhoneMask } from '@/utils/formatters';
-import { exportToCSV, mobileUserExportColumns } from '@/utils/exportUtils';
+import { exportToCSVLegacy, mobileUserExportColumns } from '@/utils/exportUtils';
 
 const USER_TYPES = [
   { value: 'Admin', label: 'Admin' },
@@ -148,7 +148,7 @@ const MobilePage: React.FC = () => {
     }];
 
     const filename = `usuario_mobile_${currentUser.email}_${new Date().toISOString().split('T')[0]}.csv`;
-    exportToCSV(dataToExport, mobileUserExportColumns, filename);
+    exportToCSVLegacy(dataToExport, mobileUserExportColumns, filename);
   };
 
   const handleCopyUserData = () => {

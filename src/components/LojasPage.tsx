@@ -14,7 +14,7 @@ import * as cnpjService from '@/api/services/cnpjService';
 import { Partner, State, Segment, Size, City } from '@/api/services/referenceData';
 import { Store } from '@/api/types';
 import { applyCNPJMask, applyPhoneMask, unformatCNPJ } from '@/utils/formatters';
-import { exportToCSV, storeExportColumns } from '@/utils/exportUtils';
+import { exportToCSVLegacy, storeExportColumns } from '@/utils/exportUtils';
 
 // Dias da semana para o campo Funcionamento (0-6)
 const OPERATION_DAYS = [
@@ -704,7 +704,7 @@ export const LojasPage: React.FC = () => {
       >
         {stores.length > 0 && (
           <button
-            onClick={() => exportToCSV(stores, storeExportColumns, `lojas_${new Date().toISOString().split('T')[0]}`)}
+            onClick={() => exportToCSVLegacy(stores, storeExportColumns, `lojas_${new Date().toISOString().split('T')[0]}`)}
             className="btn-secondary flex items-center gap-2 text-sm"
             title="Exportar para CSV"
           >

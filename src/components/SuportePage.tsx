@@ -11,7 +11,7 @@ import * as supportService from '@/api/services/supportService';
 import { SupportUser } from '@/api/types';
 import * as refDataService from '@/api/services/referenceData';
 import { Partner } from '@/api/services/referenceData';
-import { exportToCSV, supportUserExportColumns } from '@/utils/exportUtils';
+import { exportToCSVLegacy, supportUserExportColumns } from '@/utils/exportUtils';
 
 export const SuportePage: React.FC = () => {
 
@@ -214,7 +214,7 @@ export const SuportePage: React.FC = () => {
       >
         {currentUser && (
           <button
-            onClick={() => exportToCSV([currentUser], supportUserExportColumns, `usuario_suporte_${currentUser.email}`)}
+            onClick={() => exportToCSVLegacy([currentUser], supportUserExportColumns, `usuario_suporte_${currentUser.email}`)}
             className="btn-secondary flex items-center gap-2 text-sm"
             title="Exportar para CSV"
           >
